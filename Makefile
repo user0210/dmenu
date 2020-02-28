@@ -42,8 +42,11 @@ dist: clean
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	cp -f dmenu dmenu_path dmenu_run stest $(DESTDIR)$(PREFIX)/bin
-	chmod 755 $(DESTDIR)$(PREFIX)/bin/dmenu
+	mkdir -p $(HOMEDIR)/.config/dmenu
+	cp -f dmenu_path dmenu_run stest $(DESTDIR)$(PREFIX)/bin
+	cp -f dmenu $(DESTDIR)$(PREFIX)/bin/dmenu_org
+	cp -f dmenu_script $(HOMEDIR)/.config/dmenu/dmenu
+	chmod 755 $(DESTDIR)$(PREFIX)/bin/dmenu_org
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/dmenu_path
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/dmenu_run
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/stest
@@ -52,13 +55,16 @@ install: all
 	sed "s/VERSION/$(VERSION)/g" < stest.1 > $(DESTDIR)$(MANPREFIX)/man1/stest.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/dmenu.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/stest.1
+	ln -s $(HOMEDIR)/.config/dmenu/dmenu $(DESTDIR)$(PREFIX)/bin/dmenu
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/dmenu\
+	rm -f $(DESTDIR)$(PREFIX)/bin/dmenu_org\
 		$(DESTDIR)$(PREFIX)/bin/dmenu_path\
 		$(DESTDIR)$(PREFIX)/bin/dmenu_run\
 		$(DESTDIR)$(PREFIX)/bin/stest\
 		$(DESTDIR)$(MANPREFIX)/man1/dmenu.1\
-		$(DESTDIR)$(MANPREFIX)/man1/stest.1
+		$(DESTDIR)$(MANPREFIX)/man1/stest.1\
+		$(DESTDIR)$(PREFIX)/bin/dmenu\
+		$(HOMEDIR)/.config/dmenu/dmenu
 
 .PHONY: all options clean dist install uninstall
