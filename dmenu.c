@@ -25,7 +25,7 @@
                              * MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
 #define LENGTH(X)             (sizeof X / sizeof X[0])
 #define TEXTW(X)              (drw_fontset_getwidth(drw, (X)) + lrpad)
-#define OPAQUE                0xffU
+#define OPAQUE                1.0
 #define OPACITY               "_NET_WM_WINDOW_OPACITY"
 
 /* enums */

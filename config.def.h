@@ -9,12 +9,12 @@ static const char *fonts[] = {
 };
 static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
 
-static const unsigned int baralpha = 0xd0;
-static const unsigned int borderalpha = OPAQUE;
-static const unsigned int alphas[][3]      = {
+static const float baralpha = 0.7;
+static const float alphas[][2]      = {
 	/*               fg      bg        border     */
-	[SchemeNorm] = { OPAQUE, baralpha, borderalpha },
-	[SchemeSel]  = { OPAQUE, baralpha, borderalpha },
+	[SchemeNorm] = { OPAQUE, baralpha },
+	[SchemeSel]  = { OPAQUE, baralpha },
+	[SchemeOut]  = { OPAQUE, baralpha },
 };
 
 static const char *colors[SchemeLast][2] = {
