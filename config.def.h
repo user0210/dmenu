@@ -16,6 +16,9 @@ static const float alphas[][2]      = {
 	[SchemeNorm] = { OPAQUE, baralpha },
 	[SchemeSel]  = { OPAQUE, baralpha },
 	[SchemeOut]  = { OPAQUE, baralpha },
+	[SchemeNormHighlight] = { OPAQUE, baralpha },
+	[SchemeSelHighlight]  = { OPAQUE, baralpha },
+	[SchemeOutHighlight]  = { OPAQUE, baralpha },
 };
 
 static const char *colors[SchemeLast][2] = {
@@ -23,8 +26,8 @@ static const char *colors[SchemeLast][2] = {
 	[SchemeNorm] = { "#bbbbbb", "#222222" },
 	[SchemeSel] = { "#eeeeee", "#005577" },
 	[SchemeOut] = { "#000000", "#00ffff" },
-	[SchemeSelHighlight] = { "#ffc978", "#005577" },
 	[SchemeNormHighlight] = { "#ffc978", "#222222" },
+	[SchemeSelHighlight] = { "#ffc978", "#005577" },
 	[SchemeOutHighlight] = { "#ffc978", "#00ffff" },
 };
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */

@@ -64,7 +64,7 @@ static Drw *drw;
 static Clr *scheme[SchemeLast];
 
 /* Temporary arrays to allow overriding xresources values */
-static char *colortemp[6];
+static char *colortemp[12];
 static char *tempfonts;
 
 #include "config.h"
@@ -916,7 +916,30 @@ readxresources(void) {
 			colors[SchemeOut][ColFg] = strdup(xval.addr);
 		else
 			colors[SchemeOut][ColFg] = strdup(colors[SchemeOut][ColFg]);
-
+		if (XrmGetResource(xdb, "dmenu.hibackground", "*", &type, &xval))
+			colors[SchemeNormHighlight][ColBg] = strdup(xval.addr);
+		else
+			colors[SchemeNormHighlight][ColBg] = strdup(colors[SchemeNormHighlight][ColBg]);
+		if (XrmGetResource(xdb, "dmenu.hiforeground", "*", &type, &xval))
+			colors[SchemeNormHighlight][ColFg] = strdup(xval.addr);
+		else
+			colors[SchemeNormHighlight][ColFg] = strdup(colors[SchemeNormHighlight][ColFg]);
+		if (XrmGetResource(xdb, "dmenu.hiselbackground", "*", &type, &xval))
+			colors[SchemeSelHighlight][ColBg] = strdup(xval.addr);
+		else
+			colors[SchemeSelHighlight][ColBg] = strdup(colors[SchemeSelHighlight][ColBg]);
+		if (XrmGetResource(xdb, "dmenu.hiselforeground", "*", &type, &xval))
+			colors[SchemeSelHighlight][ColFg] = strdup(xval.addr);
+		else
+			colors[SchemeSelHighlight][ColFg] = strdup(colors[SchemeSelHighlight][ColFg]);
+		if (XrmGetResource(xdb, "dmenu.hioutbackground", "*", &type, &xval))
+			colors[SchemeOutHighlight][ColBg] = strdup(xval.addr);
+		else
+			colors[SchemeOutHighlight][ColBg] = strdup(colors[SchemeOutHighlight][ColBg]);
+		if (XrmGetResource(xdb, "dmenu.hioutforeground", "*", &type, &xval))
+			colors[SchemeOutHighlight][ColFg] = strdup(xval.addr);
+		else
+			colors[SchemeOutHighlight][ColFg] = strdup(colors[SchemeOutHighlight][ColFg]);
 		XrmDestroyDatabase(xdb);
 	}
 }
@@ -1012,6 +1035,18 @@ main(int argc, char *argv[])
 	   colors[SchemeOut][ColBg]  = strdup(colortemp[4]);
 	if ( colortemp[5])
 	   colors[SchemeOut][ColFg]  = strdup(colortemp[5]);
+	if ( colortemp[6])
+	   colors[SchemeNormHighlight][ColBg] = strdup(colortemp[6]);
+	if ( colortemp[7])
+	   colors[SchemeNormHighlight][ColFg] = strdup(colortemp[7]);
+	if ( colortemp[8])
+	   colors[SchemeSelHighlight][ColBg]  = strdup(colortemp[8]);
+	if ( colortemp[9])
+	   colors[SchemeSelHighlight][ColFg]  = strdup(colortemp[9]);
+	if ( colortemp[10])
+	   colors[SchemeOutHighlight][ColBg]  = strdup(colortemp[10]);
+	if ( colortemp[11])
+	   colors[SchemeOutHighlight][ColFg]  = strdup(colortemp[11]);
 
 	if (!drw_fontset_create(drw, (const char**)fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
