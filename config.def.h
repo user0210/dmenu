@@ -30,10 +30,11 @@ static const char *colors[SchemeLast][2] = {
 	[SchemeSelHighlight] = { "#ffc978", "#005577" },
 	[SchemeOutHighlight] = { "#ffc978", "#00ffff" },
 };
-/* -l option; if nonzero, dmenu uses vertical list with given number of lines */
+/* -l and -g options; controls number of lines and columns in grid if > 0 */
 static unsigned int lines      = 0;
 static unsigned int maxhist    = 64;
 static int histnodup           = 1;	/* if 0, record repeated histories */
+static unsigned int columns    = 0;
 
 /*
  * Characters not considered part of a word while deleting words
