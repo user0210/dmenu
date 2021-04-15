@@ -508,6 +508,10 @@ insert:
 		match();
 		break;
 	}
+	if (incremental) {
+		puts(text);
+		fflush(stdout);
+	}
 
 draw:
 	drawmenu();
@@ -746,7 +750,7 @@ setup(void)
 static void
 usage(void)
 {
-	fputs("usage: dmenu [-biv] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-biv] [r] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n", stderr);
 	exit(1);
 }
@@ -764,6 +768,8 @@ main(int argc, char *argv[])
 			exit(0);
 		} else if (!strcmp(argv[i], "-b")) /* appears at the bottom of the screen */
 			topbar = 0;
+		else if (!strcmp(argv[i], "-r"))   /* incremental */
+			incremental = !incremental;
 		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
