@@ -30,7 +30,7 @@
 #define OPACITY               "_NET_WM_WINDOW_OPACITY"
 
 /* enums */
-enum { SchemeNorm, SchemeSel, SchemeOut, SchemeLast }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeOut, SchemeNormHighlight, SchemeSelHighlight, SchemeOutHighlight, SchemeLast }; /* color schemes */
 
 struct item {
 	char *text;
@@ -127,9 +127,47 @@ cistrstr(const char *s, const char *sub)
 	return NULL;
 }
 
+static void
+drawhighlights(struct item *item, int x, int y, int maxw)
+{
+	int i, indent;
+	char *highlight;
+	char c;
+
+	if (!(strlen(item->text) && strlen(text)))
+		return;
+
+	drw_setscheme(drw, scheme[item == sel ? SchemeSelHighlight : item->out ? SchemeOutHighlight : SchemeNormHighlight]);
+	for (i = 0, highlight = item->text; *highlight && text[i];) {
+		if (*highlight == text[i]) {
+			/* get indentation */
+			c = *highlight;
+			*highlight = '\0';
+			indent = TEXTW(item->text);
+			*highlight = c;
+
+			/* highlight character */
+			c = highlight[1];
+			highlight[1] = '\0';
+			drw_text(
+				drw,
+				x + indent - (lrpad / 2),
+				y,
+				MIN(maxw - indent, TEXTW(highlight) - lrpad),
+				bh, 0, highlight, 0
+			);
+			highlight[1] = c;
+			i++;
+		}
+		highlight++;
+	}
+}
+
+
 static int
 drawitem(struct item *item, int x, int y, int w)
 {
+	int r;
 	if (item == sel)
 		drw_setscheme(drw, scheme[SchemeSel]);
 	else if (item->out)
@@ -137,7 +175,9 @@ drawitem(struct item *item, int x, int y, int w)
 	else
 		drw_setscheme(drw, scheme[SchemeNorm]);
 
-	return drw_text(drw, x, y, w, bh, lrpad / 2, item->text, 0);
+	r = drw_text(drw, x, y, w, bh, lrpad / 2, item->text, 0);
+	drawhighlights(item, x, y, w);
+	return r;
 }
 
 static void
@@ -831,8 +871,10 @@ static void
 usage(void)
 {
 	fputs("usage: dmenu [-bfiv] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
-	      "             [-nb color] [-nf color] [-sb color] [-sf color]\n"
-	      "             [-ob color] [-of color] [-w windowid] [ -o opacity]\n", stderr);
+	      "             [-nb color] [-nf color] [-nhb color] [-nhf color]\n"
+	      "             [-sb color] [-sf color] [-shb color] [-shf color]\n"
+	      "             [-ob color] [-of color] [-ohb color] [-ohf color]\n"
+	      "             [-w windowid] [ -o opacity]\n", stderr);
 	exit(1);
 }
 
@@ -924,6 +966,18 @@ main(int argc, char *argv[])
 			colortemp[4] = argv[++i];
 		else if (!strcmp(argv[i], "-of"))  /* out foreground color */
 			colortemp[5] = argv[++i];
+		else if (!strcmp(argv[i], "-nhb")) /* normal hi background color */
+			colortemp[6] = argv[++i];
+		else if (!strcmp(argv[i], "-nhf")) /* normal hi foreground color */
+			colortemp[7] = argv[++i];
+		else if (!strcmp(argv[i], "-shb")) /* selected hi background color */
+			colortemp[8] = argv[++i];
+		else if (!strcmp(argv[i], "-shf")) /* selected hi foreground color */
+			colortemp[9] = argv[++i];
+		else if (!strcmp(argv[i], "-ohb"))  /* out hi background color */
+			colortemp[10] = argv[++i];
+		else if (!strcmp(argv[i], "-ohf"))  /* out hi foreground color */
+			colortemp[11] = argv[++i];
 		else if (!strcmp(argv[i], "-w"))   /* embedding window id */
 			embed = argv[++i];
 		else
