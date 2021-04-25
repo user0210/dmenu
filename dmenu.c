@@ -41,6 +41,7 @@ struct item {
 static char text[BUFSIZ] = "";
 static char *embed;
 static int bh, mw, mh;
+static int forcenopreserve = 0;
 static int inputw = 0, promptw;
 static int lrpad; /* sum of left and right padding */
 static size_t cursor;
@@ -271,7 +272,7 @@ match(void)
 			matches = lsubstr;
 		matchend = substrend;
 	}
-	if (!preserve)
+	if (!preserve || forcenopreserve == 1)
 		curr = sel = matches;
 
 	calcoffsets();
@@ -750,7 +751,7 @@ setup(void)
 static void
 usage(void)
 {
-	fputs("usage: dmenu [-biv] [r] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-bfiv] [r] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n", stderr);
 	exit(1);
 }
@@ -770,6 +771,8 @@ main(int argc, char *argv[])
 			topbar = 0;
 		else if (!strcmp(argv[i], "-r"))   /* incremental */
 			incremental = !incremental;
+		else if (!strcmp(argv[i], "-f"))   /* force setting curr and sel without preserving */
+			forcenopreserve = 1;
 		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
