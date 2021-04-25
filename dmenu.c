@@ -328,11 +328,12 @@ fuzzymatch(void)
 	char c;
 	int number_of_matches = 0, i, pidx, sidx, eidx;
 	int text_len = strlen(text), itext_len;
+	int preserve = 0;
 
 	matches = matchend = NULL;
 
 	/* walk through all items */
-	for (it = items; it && it->text; it++) {
+	for (it = items; it && (!(dynamic && *dynamic) || it->text); it = (dynamic && *dynamic) ? it + 1 : it->next) {
 		if (text_len) {
 			itext_len = strlen(it->text);
 			pidx = 0; /* pointer */
@@ -358,10 +359,12 @@ fuzzymatch(void)
 				it->distance = log(sidx + 2) + (double)(eidx - sidx - text_len);
 				/* fprintf(stderr, "distance %s %f\n", it->text, it->distance); */
 				appenditem(it, &matches, &matchend);
+				if (sel == it) preserve = 1;
 				number_of_matches++;
 			}
 		} else {
 			appenditem(it, &matches, &matchend);
+			if (sel == it) preserve = 1;
 		}
 	}
 
@@ -379,10 +382,12 @@ fuzzymatch(void)
 		for (i = 0, it = fuzzymatches[i];  i < number_of_matches && it && \
 				it->text; i++, it = fuzzymatches[i]) {
 			appenditem(it, &matches, &matchend);
+			if (sel == it) preserve = 1;
 		}
 		free(fuzzymatches);
 	}
-	curr = sel = matches;
+	if (!preserve || forcenopreserve == 1)
+		curr = sel = matches;
 	calcoffsets();
 }
 
@@ -414,7 +419,7 @@ match(void)
 
 	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
 	textsize = strlen(text) + 1;
-	for (item = items; item; item = item->next) {
+	for (item = items; item && (!(dynamic && *dynamic) || item->text); item = (dynamic && *dynamic) ? item + 1 : item->next) {
 		for (i = 0; i < tokc; i++)
 			if (!fstrstr(item->text, tokv[i]))
 				break;
