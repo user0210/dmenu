@@ -18,6 +18,7 @@ dmenu \- dynamic menu
 .IR color ]
 .RB [ \-nf
 .IR color ]
+.RB [ \-r ]
 .RB [ \-sb
 .IR color ]
 .RB [ \-sf
@@ -57,8 +58,7 @@ which lists programs in the user's $PATH and runs the result in their $SHELL.
 dmenu appears at the bottom of the screen.
 .TP
 .B \-f
-dmenu grabs the keyboard before reading stdin if not reading from a tty. This
-is faster, but will lock up X until stdin reaches end\-of\-file.
+force setting curr and sel without preserving from the non\-blocking\-stdin\-patch.
 .TP
 .B \-i
 dmenu matches menu items case insensitively.
@@ -75,6 +75,9 @@ from 0.
 .TP
 .BI \-p " prompt"
 defines the prompt to be displayed to the left of the input field.
+.TP
+.B \-r
+dmenu outputs text each time a key is pressed.
 .TP
 .BI \-fn " font"
 defines the font or font set used.
