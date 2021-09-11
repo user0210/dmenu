@@ -206,7 +206,7 @@ recalculatenumbers()
 		for (item = matchend; item && item->left; item = item->left)
 			numer++;
 	}
-	for (item = items; item && item->text; item++)
+	for (item = items; item && item->text; item = item->next)
 		denom++;
 	snprintf(numbers, NUMBERSBUFSIZE, "%d/%d", numer, denom);
 }
