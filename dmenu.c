@@ -105,18 +105,18 @@ printsel(unsigned int state)
 	for (int i = 0;i < selidsize;i++)
 		if (selid[i] != -1 && (!sel || sel->id != selid[i])) {
 			if (print_index)
-				printf("%d\n", selid[i]);
+				printf("%d\n", selid[i] + 1);
 			else
 				puts(items[selid[i]].text);
 		}
 	if (sel && !(state & ShiftMask)) {
 		if (print_index)
-			printf("%d\n", sel->index);
+			printf("%d\n", sel->index + 1);
 		else
 			puts(sel->text);
 	} else {
 		if (print_index)
-			printf("%d\n", -1);
+			printf("%d\n", 0);
 		else
 			puts(text);
 	}
