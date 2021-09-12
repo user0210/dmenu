@@ -39,6 +39,7 @@ struct item {
 	char *text;
 	struct item *left, *right;
 	int id; /* for multiselect */
+	int index;
 	double distance;
 };
 
@@ -56,6 +57,7 @@ static struct item *items = NULL, *backup_items;
 static struct item *matches, *matchend;
 static struct item *prev, *curr, *next, *sel;
 static int mon = -1, screen;
+static int print_index = 0;
 
 static int *selid = NULL;
 static unsigned int selidsize = 0;
@@ -101,12 +103,23 @@ static void
 printsel(unsigned int state)
 {
 	for (int i = 0;i < selidsize;i++)
-		if (selid[i] != -1 && (!sel || sel->id != selid[i]))
-			puts(items[selid[i]].text);
-	if (sel && !(state & ShiftMask))
-		puts(sel->text);
-	else
-		puts(text);
+		if (selid[i] != -1 && (!sel || sel->id != selid[i])) {
+			if (print_index)
+				printf("%d\n", selid[i]);
+			else
+				puts(items[selid[i]].text);
+		}
+	if (sel && !(state & ShiftMask)) {
+		if (print_index)
+			printf("%d\n", sel->index);
+		else
+			puts(sel->text);
+	} else {
+		if (print_index)
+			printf("%d\n", -1);
+		else
+			puts(text);
+	}
 }
 
 static void
@@ -1165,6 +1178,7 @@ readstdin(void)
 		if (!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
 		items[i].id = i; /* for multiselect */
+		items[i].index = i;
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
@@ -1194,6 +1208,7 @@ readstream(FILE* stream)
 		if (!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
 		items[i].id = i; /* for multiselect */
+		items[i].index = i;
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
@@ -1492,7 +1507,9 @@ main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
-		} else if (i + 1 == argc)
+		} else if (!strcmp(argv[i], "-ix"))  /* adds ability to return index in list */
+			print_index = 1;
+		else if (i + 1 == argc)
 			usage();
 		/* these options take one argument */
 		else if (!strcmp(argv[i], "-H"))
