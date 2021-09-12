@@ -11,7 +11,7 @@ static const char *fonts[] = {
 static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
 static const char *dynamic     = NULL;      /* -dy option; dynamic command to run on input change */
 
-static const float baralpha = 0.7;
+static const float baralpha = 1.0;
 static const float alphas[][2]      = {
 	/*               fg      bg        border     */
 	[SchemeNorm] = { OPAQUE, baralpha },
