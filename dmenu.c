@@ -1247,6 +1247,23 @@ setup(void)
 	utf8 = XInternAtom(dpy, "UTF8_STRING", False);
 
 	/* calculate menu geometry */
+	if (dwmembed && !embed) {
+		FILE * file;
+		file = popen("xwininfo -name dwmbar | grep -E 'Absolute.*X' | grep -oE '[^ ]+$'", "r");
+		if (file != NULL) {
+			int gapp = 0;
+			fscanf(file, "%d", &gapp);
+			dmx = dmy = gapp;
+			pclose(file);
+		}
+		file = popen("xwininfo -name dwmbar | grep -E 'Width' | grep -oE '[^ ]+$'", "r");
+		if (file != NULL) {
+			int width = 0;
+			fscanf(file, "%d", &width);
+			dmw = width;
+			pclose(file);
+		}
+	}
 	bh = drw->fonts->h + 2;
 	lines = MAX(lines, 0);
 	mh = (lines + 1) * bh;
