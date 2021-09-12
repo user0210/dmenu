@@ -1119,11 +1119,7 @@ readstream(FILE* stream)
 		if (!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
 		items[i].out = 0;
-		#if PANGO_PATCH
-		drw_font_getexts(drw->font, buf, strlen(buf), &tmpmax, NULL, True);
-		#else
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
-		#endif // PANGO_PATCH
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
 			imax = i;
@@ -1131,11 +1127,7 @@ readstream(FILE* stream)
 	}
 	if (items)
 		items[i].text = NULL;
-	#if PANGO_PATCH
-	inputw = items ? TEXTWM(items[imax].text) : 0;
-	#else
 	inputw = items ? TEXTW(items[imax].text) : 0;
-	#endif // PANGO_PATCH
 	if (!dynamic || !*dynamic)
 		lines = MIN(lines, i);
 } 
