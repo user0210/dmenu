@@ -38,7 +38,7 @@ enum { SchemeNorm, SchemeSel, SchemeOut, SchemeNormHighlight, SchemeSelHighlight
 struct item {
 	char *text;
 	struct item *left, *right;
-	int out;
+	int id; /* for multiselect */
 	double distance;
 };
 
@@ -56,6 +56,9 @@ static struct item *items = NULL, *backup_items;
 static struct item *matches, *matchend;
 static struct item *prev, *curr, *next, *sel;
 static int mon = -1, screen;
+
+static int *selid = NULL;
+static unsigned int selidsize = 0;
 
 static Atom clip, utf8;
 static Display *dpy;
@@ -84,6 +87,48 @@ static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
 static char *(*fstrstr)(const char *, const char *) = strstr;
 
 static void refreshoptions();
+
+static int
+issel(size_t id)
+{
+	for (int i = 0;i < selidsize;i++)
+		if (selid[i] == id)
+			return 1;
+	return 0;
+}
+
+static void
+printsel(unsigned int state)
+{
+	for (int i = 0;i < selidsize;i++)
+		if (selid[i] != -1 && (!sel || sel->id != selid[i]))
+			puts(items[selid[i]].text);
+	if (sel && !(state & ShiftMask))
+		puts(sel->text);
+	else
+		puts(text);
+}
+
+static void
+selsel()
+{
+	if (!sel)
+		return;
+	if (issel(sel->id)) {
+		for (int i = 0; i < selidsize; i++)
+			if (selid[i] == sel->id)
+				selid[i] = -1;
+	} else {
+		for (int i = 0; i < selidsize; i++)
+			if (selid[i] == -1) {
+				selid[i] = sel->id;
+				return;
+			}
+		selidsize++;
+		selid = realloc(selid, (selidsize + 1) * sizeof(int));
+		selid[selidsize - 1] = sel->id;
+	}
+}
 
 static void
 appenditem(struct item *item, struct item **list, struct item **last)
@@ -127,6 +172,7 @@ cleanup(void)
 	drw_free(drw);
 	XSync(dpy, False);
 	XCloseDisplay(dpy);
+	free(selid);
 }
 
 static char *
@@ -150,7 +196,7 @@ drawhighlights(struct item *item, int x, int y, int maxw)
 	if (!(strlen(item->text) && strlen(text)))
 		return;
 
-	drw_setscheme(drw, scheme[item == sel ? SchemeSelHighlight : item->out ? SchemeOutHighlight : SchemeNormHighlight]);
+	drw_setscheme(drw, scheme[item == sel ? SchemeSelHighlight : issel(item->id) ? SchemeOutHighlight : SchemeNormHighlight]);
 	for (i = 0, highlight = item->text; *highlight && text[i];) {
 		if (*highlight == text[i]) {
 			/* get indentation */
@@ -183,7 +229,7 @@ drawitem(struct item *item, int x, int y, int w)
 	int r;
 	if (item == sel)
 		drw_setscheme(drw, scheme[SchemeSel]);
-	else if (item->out)
+	else if (issel(item->id))
 		drw_setscheme(drw, scheme[SchemeOut]);
 	else
 		drw_setscheme(drw, scheme[SchemeNorm]);
@@ -691,6 +737,7 @@ keypress(XKeyEvent *ev)
 			goto draw;
 		case XK_Return:
 		case XK_KP_Enter:
+			selsel();
 			break;
 		case XK_bracketleft:
 			cleanup();
@@ -814,15 +861,13 @@ insert:
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
-		puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
 		if (!(ev->state & ControlMask)) {
 			savehistory((sel && !(ev->state & ShiftMask))
 				    ? sel->text : text);
+			printsel(ev->state);
 			cleanup();
 			exit(0);
 		}
-		if (sel)
-			sel->out = 1;
 		break;
 	case XK_Right:
 		if (columns > 1) {
@@ -940,12 +985,15 @@ buttonpress(XEvent *e)
 			y += h;
 			if (ev->y >= y && ev->y <= (y + h) &&
 			    ev->x >= x && ev->x <= (x + w / columns)) {
-				puts(item->text);
-				if (!(ev->state & ControlMask))
+				if (!(ev->state & ControlMask)) {
+					sel = item;
+					selsel();
+					printsel(ev->state);
 					exit(0);
+				}
 				sel = item;
 				if (sel) {
-					sel->out = 1;
+					selsel();
 					drawmenu();
 				}
 				return;
@@ -968,12 +1016,15 @@ buttonpress(XEvent *e)
 			x += w;
 			w = MIN(TEXTW(item->text), mw - x - TEXTW(">"));
 			if (ev->x >= x && ev->x <= x + w) {
-				puts(item->text);
-				if (!(ev->state & ControlMask))
+				if (!(ev->state & ControlMask)) {
+					sel = item;
+					selsel();
+					printsel(ev->state);
 					exit(0);
+				}
 				sel = item;
 				if (sel) {
-					sel->out = 1;
+					selsel();
 					drawmenu();
 				}
 				return;
@@ -1113,7 +1164,7 @@ readstdin(void)
 			*p = '\0';
 		if (!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
-		items[i].out = 0;
+		items[i].id = i; /* for multiselect */
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
@@ -1142,7 +1193,7 @@ readstream(FILE* stream)
 			*p = '\0';
 		if (!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf) + 1);
-		items[i].out = 0;
+		items[i].id = i; /* for multiselect */
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
