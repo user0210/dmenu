@@ -1060,7 +1060,7 @@ mousemove(XEvent *e)
 {
 	struct item *item;
 	XPointerMovedEvent *ev = &e->xmotion;
-	int x = 0, y = 0, h = bh, w, item_num = 0;
+	int x = promptw, y = 0, h = bh, w, item_num = 0;
 
 	if (lines > 0 && columns > 0) {
 		w = mw - x;
