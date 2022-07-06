@@ -1295,6 +1295,9 @@ setup(void)
 	Window w, dw, *dws;
 	XWindowAttributes wa;
 	XClassHint ch = {"dmenu", "dmenu"};
+	char *title = "dmenubar";
+	XTextProperty tp;
+	XStringListToTextProperty(&title, 1, &tp);
 #ifdef XINERAMA
 	XineramaScreenInfo *info;
 	Window pw;
@@ -1387,6 +1390,7 @@ setup(void)
 	                    depth, InputOutput, visual,
 	                    CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &swa);
 	XSetClassHint(dpy, win, &ch);
+	XSetWMName(dpy, win, &tp);
 
 	/* input methods */
 	if ((xim = XOpenIM(dpy, NULL, NULL, NULL)) == NULL)
